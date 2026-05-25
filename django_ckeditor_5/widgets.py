@@ -90,6 +90,16 @@ class CKEditor5Widget(forms.Widget):
                 "ck_editor_5_upload_file",
             ),
         )
+        try:
+            context["video_upload_url"] = reverse(
+                getattr(
+                    settings,
+                    "CK_EDITOR_5_UPLOAD_VIDEO_VIEW_NAME",
+                    "ck_editor_5_upload_video",
+                ),
+            )
+        except Exception:
+            context["video_upload_url"] = ""
         context["upload_file_types"] = json.dumps(
             getattr(
                 settings,

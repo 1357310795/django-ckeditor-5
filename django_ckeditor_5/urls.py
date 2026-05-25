@@ -4,4 +4,5 @@ from . import views
 
 urlpatterns = [
     path("image_upload/", views.upload_file, name="ck_editor_5_upload_file"),
+    path("video_upload/", views.upload_video, name="ck_editor_5_upload_video"),
 ]

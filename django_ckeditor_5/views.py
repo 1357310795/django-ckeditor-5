@@ -13,7 +13,7 @@ else:
 from django.conf import settings
 from django.http import JsonResponse
 
-from .forms import UploadFileForm
+from .forms import UploadFileForm, UploadVideoForm
 
 
 @require_POST
@@ -38,4 +38,22 @@ def upload_file(request):
             status=400,
         )
 
+    return JsonResponse({"error": {"message": _("Invalid form data")}}, status=400)
+
+
+@require_POST
+@check_upload_permission
+def upload_video(request):
+    form = UploadVideoForm(request.POST, request.FILES)
+    if form.is_valid():
+        url = handle_uploaded_file(request.FILES["upload"])
+        # Return an absolute URL — CKEditor 5's mediaEmbed plugin mangles
+        # schemeless paths (prepends "https://" yielding "https:///media/...").
+        # Giving it an absolute http(s):// URL sidesteps the normalization.
+        return JsonResponse({"url": request.build_absolute_uri(url)})
+    if form.errors.get("upload"):
+        return JsonResponse(
+            {"error": {"message": form.errors["upload"][0]}},
+            status=400,
+        )
     return JsonResponse({"error": {"message": _("Invalid form data")}}, status=400)

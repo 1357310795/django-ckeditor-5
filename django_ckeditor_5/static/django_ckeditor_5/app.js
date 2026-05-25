@@ -70,6 +70,9 @@ function createEditors(element = document.body) {
         const upload_url = element.querySelector(
             `#${script_id}-ck-editor-5-upload-url`
         ).getAttribute('data-upload-url');
+        const video_upload_url = element.querySelector(
+            `#${script_id}-ck-editor-5-upload-url`
+        ).getAttribute('data-video-upload-url') || '';
         const upload_file_types = JSON.parse(element.querySelector(
             `#${script_id}-ck-editor-5-upload-url`
         ).getAttribute('data-upload-file-types'));
@@ -110,6 +113,26 @@ function createEditors(element = document.body) {
             'fileTypes': upload_file_types
         };
         config.licenseKey = 'GPL';
+
+        // ----- Video upload + mediaEmbed integration ------------------------
+        // The VideoUpload toolbar plugin posts the file to this URL and then
+        // calls editor.execute('mediaEmbed', returnedUrl). The extraProvider
+        // below recognizes local video URLs and emits a <video> element; with
+        // previewsInData: true that <video> is what gets saved to the DB.
+        if (video_upload_url) {
+            config.videoUpload = { uploadUrl: video_upload_url };
+        }
+        config.mediaEmbed = config.mediaEmbed || {};
+        if (config.mediaEmbed.previewsInData === undefined) {
+            config.mediaEmbed.previewsInData = true;
+        }
+        const _videoProvider = {
+            name: 'localVideo',
+            url: /^https?:\/\/.*\.(?:mp4|webm|ogv|mov|m4v)(?:\?.*)?$/i,
+            html: match => `<video controls src="${match[0]}" style="max-width:100%"></video>`,
+        };
+        config.mediaEmbed.extraProviders = (config.mediaEmbed.extraProviders || []).concat([_videoProvider]);
+        // --------------------------------------------------------------------
 
         // Configure autosave if enabled
         if (config.autosave) {

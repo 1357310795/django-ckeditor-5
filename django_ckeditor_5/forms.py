@@ -18,3 +18,20 @@ class UploadFileForm(forms.Form):
             FileMaxSizeValidator(getattr(settings, "CKEDITOR_5_MAX_FILE_SIZE", 0)),
         ],
     )
+
+
+class UploadVideoForm(forms.Form):
+    upload = forms.FileField(
+        validators=[
+            FileExtensionValidator(
+                getattr(
+                    settings,
+                    "CKEDITOR_5_UPLOAD_VIDEO_TYPES",
+                    ["mp4", "webm", "ogv", "mov", "m4v"],
+                ),
+            ),
+            FileMaxSizeValidator(
+                getattr(settings, "CKEDITOR_5_MAX_VIDEO_SIZE", 100),
+            ),
+        ],
+    )
